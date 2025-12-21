@@ -1,0 +1,3 @@
+
+class BracketError(Exception):
+    pass
