@@ -1,5 +1,5 @@
 from typing import Optional
-from exceptions import BracketError
+from .exceptions import BracketError
 
 
 class Match:
@@ -22,7 +22,7 @@ class Match:
         return self._opponent2
 
     @property
-    def winner(self) -> int:
+    def winning_side(self) -> int:
         return self._winning_side
 
     @property
