@@ -7,11 +7,12 @@ def find_all_matches_in_tree(root: Match) -> list[Match]:
 
     while queue:
         current = queue.pop(0)
-        matches.append(current)
-        if current.opponent1_from:
-            queue.append(current.opponent1_from)
-        if current.opponent2_from:
-            queue.append(current.opponent2_from)
+        if not current in matches:
+            matches.append(current)
+            if current.opponent1_from:
+                queue.append(current.opponent1_from)
+            if current.opponent2_from:
+                queue.append(current.opponent2_from)
 
     return matches
 
@@ -25,8 +26,8 @@ def sort_forest_by_level(level0_matches: list[Match]) -> list[list[Match]]:
         matches.append([])
         new_matches = set({})
         for match in matches[level]:
-            if match.winner_to: new_matches.add(match.winner_to)
-            if match.loser_to: new_matches.add(match.loser_to)
+            if match.opponent1_from: new_matches.add(match.opponent1_from)
+            if match.opponent2_from: new_matches.add(match.opponent2_from)
 
         for match in new_matches:
             if match not in seen_matches:
@@ -34,5 +35,6 @@ def sort_forest_by_level(level0_matches: list[Match]) -> list[list[Match]]:
                 seen_matches.add(match)
 
         level += 1
+    matches.remove([])
 
     return matches

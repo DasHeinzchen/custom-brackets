@@ -18,6 +18,7 @@ class Match:
         self._opponent1_from: Optional['Match'] = None
         self._opponent2_from: Optional['Match'] = None
         self._qualified_number = qualified_number
+        self._layer = 0
 
     @property
     def opponent1(self):
@@ -50,6 +51,10 @@ class Match:
     @property
     def qualified_number(self) -> int:
         return self.qualified_number
+
+    @property
+    def layer(self) -> int:
+        return self._layer
 
     def recieve_opponent(self, opponent, source_match: 'Match'):
         if source_match == self._opponent1_from:
@@ -101,3 +106,23 @@ class Match:
             self._winner_to.recieve_opponent(winner, self)
         if self._loser_to:
             self._loser_to.recieve_opponent(loser, self)
+
+    def set_as_layer_1_entry(self):
+        if self._opponent1_from or self._opponent2_from:
+            raise BracketError("Trying to set layer 1 entry on match that is not an entry match.")
+        self._layer = 1
+
+    def calculate_layer(self, preceding_match: 'Match'):
+        if not (preceding_match == self._opponent1_from or preceding_match == self._opponent2_from):
+            raise BracketError(f"Trying to calculate layer from not connected match.\nself: {self}\n"
+                               f"preceding_match: {preceding_match}\nopponent1_from: {self.opponent1_from}\n"
+                               f"opponent2_from: {self.opponent2_from}")
+        if preceding_match.winner_to == self:
+            self._layer = preceding_match.layer
+        else:
+            self._layer = preceding_match.layer + 1
+
+    def backtrack_layer(self, next_match: 'Match'):
+        if not next_match == self._winner_to:
+            raise BracketError("Backtracking not possible: No winner_to connection found.")
+        self._layer = next_match.layer
