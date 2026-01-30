@@ -7,7 +7,7 @@ def find_all_matches_in_tree(root: Match) -> list[Match]:
 
     while queue:
         current = queue.pop(0)
-        if not current in matches:
+        if current not in matches:
             matches.append(current)
             if current.opponent1_from:
                 queue.append(current.opponent1_from)

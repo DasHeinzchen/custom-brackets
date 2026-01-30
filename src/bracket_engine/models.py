@@ -108,7 +108,7 @@ class Match:
             self._loser_to.recieve_opponent(loser, self)
 
     def set_as_layer_1_entry(self):
-        if self._opponent1_from or self._opponent2_from:
+        if self._opponent1_from and self._opponent2_from:
             raise BracketError("Trying to set layer 1 entry on match that is not an entry match.")
         self._layer = 1
 
