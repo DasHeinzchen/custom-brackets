@@ -126,3 +126,69 @@ class Match:
         if not next_match == self._winner_to:
             raise BracketError("Backtracking not possible: No winner_to connection found.")
         self._layer = next_match.layer
+
+
+class Bracket:
+    def __init__(self, matches: list[list[Match]], roots: list[Match], entry_matches: list[Match]):
+        self._matches = matches
+        self._roots = roots
+        self._entry_matches = entry_matches
+
+    @property
+    def matches_by_level(self):
+        return self._matches
+
+    @property
+    def roots(self):
+        return self._roots
+
+    @property
+    def entry_matches(self):
+        return self._entry_matches
+
+    @property
+    def max_level(self) -> int:
+        return len(self._matches)
+
+    @property
+    def match_list(self) -> list[Match]:
+        match_list = []
+        for level in self._matches:
+            match_list += level
+
+        return match_list
+
+    def calculate_layers(self):
+        # based on assumption that winner stays in layer and loser moves exactly 1 layer down
+        layer_1_entries = []
+        seen_matches = set({})
+        for match in self._entry_matches:
+            if match.layer == 1:
+                layer_1_entries.append(match)
+                seen_matches.add(match)
+
+        losing_matches = []
+        queue = layer_1_entries
+        while queue:
+            match = queue.pop(0)
+            winner_to = match.winner_to
+            if winner_to and winner_to not in seen_matches:
+                winner_to.calculate_layer(match)
+                seen_matches.add(winner_to)
+                queue.append(winner_to)
+            loser_to = match.loser_to
+            if loser_to and loser_to not in seen_matches:
+                loser_to.calculate_layer(match)
+                losing_matches.append(loser_to)
+                seen_matches.add(loser_to)
+
+            if not queue:
+                while losing_matches:
+                    loser_match = losing_matches.pop(0)
+                    queue.append(loser_match)
+                    for preceding_match in [loser_match.opponent1_from, loser_match.opponent2_from]:
+                        if preceding_match and preceding_match not in seen_matches:
+                            preceding_match.backtrack_layer(loser_match)
+                            losing_matches.append(preceding_match)
+                            seen_matches.add(preceding_match)
+                            queue.append(preceding_match)
