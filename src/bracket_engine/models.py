@@ -135,8 +135,37 @@ class Bracket:
         self._entry_matches = entry_matches
 
     @property
+    def match_list(self) -> list[Match]:
+        match_list = []
+        for level in self._matches:
+            match_list += level
+
+        return match_list
+
+    @property
     def matches_by_level(self):
         return self._matches
+
+    @property
+    def matches_by_layer(self) -> list[list[Match]]:
+        matches = []
+        for _ in range(self.layer_number):
+            matches.append([])
+        for match in self.match_list:
+            matches[match.layer - 1].append(match)
+        return matches
+
+    @property
+    def matches_by_level_and_layer(self) -> list[list[list[Match]]]:
+        matches = []
+        for i, level in enumerate(self._matches):
+            matches.append([])
+            for _ in range(self.layer_number):
+                matches[i].append([])
+            for match in level:
+                matches[i][match.layer - 1].append(match)
+
+        return matches
 
     @property
     def roots(self):
@@ -151,12 +180,18 @@ class Bracket:
         return len(self._matches)
 
     @property
-    def match_list(self) -> list[Match]:
-        match_list = []
-        for level in self._matches:
-            match_list += level
+    def layer_number(self) -> int:
+        return max(map(lambda match: match.layer, self.match_list))
 
-        return match_list
+    @property
+    def team_number(self) -> int:
+        team_number = 0
+        for match in self._entry_matches:
+            if not match.opponent1_from:
+                team_number += 1
+            if not match.opponent2_from:
+                team_number += 1
+        return team_number
 
     def calculate_layers(self):
         # based on assumption that winner stays in layer and loser moves exactly 1 layer down

@@ -283,6 +283,7 @@ def test_basic_bracket_building():
     assert s1 in bracket.entry_matches
     assert s2 in bracket.entry_matches
     assert len(bracket.entry_matches) == 2
+    assert bracket.team_number == 4
 
 
 def test_advanced_bracket_building():
@@ -293,6 +294,7 @@ def test_advanced_bracket_building():
     for match in entries:
         assert match in bracket.entry_matches
     assert len(bracket.roots) == 1
+    assert bracket.team_number == 12
 
 
 def test_advanced_layers():
@@ -303,6 +305,7 @@ def test_advanced_layers():
 
     bracket.calculate_layers()
 
+    assert bracket.layer_number == 2
     assert bracket.roots[0].layer == 1
 
     upper = []
@@ -348,6 +351,7 @@ def test_qual_bracket_building():
     for match in entries:
         assert match in bracket.entry_matches
     assert len(bracket.roots) == 2
+    assert bracket.team_number == 8
 
 
 def test_qual_layers():
@@ -356,6 +360,8 @@ def test_qual_layers():
         match.set_as_layer_1_entry()
 
     bracket.calculate_layers()
+
+    assert bracket.layer_number == 1
 
     for match in bracket.match_list:
         assert match.layer == 1
@@ -369,6 +375,7 @@ def test_group1_bracket_building():
     for match in entries:
         assert match in bracket.entry_matches
     assert len(bracket.roots) == 2
+    assert bracket.team_number == 8
 
 
 def test_group1_layers():
@@ -377,6 +384,8 @@ def test_group1_layers():
         match.set_as_layer_1_entry()
 
     bracket.calculate_layers()
+
+    assert bracket.layer_number == 2
 
     upper = []
     lower = []
@@ -421,6 +430,7 @@ def test_group2_bracket_building():
     for match in entries:
         assert match in bracket.entry_matches
     assert len(bracket.roots) == 2
+    assert bracket.team_number == 8
 
 
 def test_group2_layers():
@@ -429,6 +439,8 @@ def test_group2_layers():
         match.set_as_layer_1_entry()
 
     bracket.calculate_layers()
+
+    assert bracket.layer_number == 2
 
     upper = []
     lower = []
@@ -473,6 +485,7 @@ def test_triple_qual_bracket_building():
     for match in entries:
         assert match in bracket.entry_matches
     assert len(bracket.roots) == 1
+    assert bracket.team_number == 12
 
 
 def test_triple_qual_layers():
@@ -481,6 +494,8 @@ def test_triple_qual_layers():
         match.set_as_layer_1_entry()
 
     bracket.calculate_layers()
+
+    assert bracket.layer_number == 3
 
     upper = []
     mid = []
