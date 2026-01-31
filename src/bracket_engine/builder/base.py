@@ -82,6 +82,9 @@ def bracket_from_root_matches(roots: list[Match]) -> Bracket:
         if not (match.opponent1_from and match.opponent2_from):
             entry_matches.append(match)
 
+    if tree.has_cycle(entry_matches):
+        raise BuildingError("The bracket contains a cycle")
+
     matches = tree.sort_forest_by_level(roots)
 
     return Bracket(matches, roots, entry_matches)

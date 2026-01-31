@@ -38,3 +38,28 @@ def sort_forest_by_level(level0_matches: list[Match]) -> list[list[Match]]:
     matches.remove([])
 
     return matches
+
+
+def has_cycle(entry_matches: list[Match]) -> bool:
+    for match in entry_matches:
+        if _dfs_has_cycle(match, set({})):
+            return True
+    return False
+
+
+def _dfs_has_cycle(match: Match, seen_matches: set) -> bool:
+    seen_matches.add(match)
+
+    if match.opponent1_from:
+        if match.opponent1_from in seen_matches:
+            return True
+        elif _dfs_has_cycle(match.opponent1_from, seen_matches):
+            return True
+    if match.opponent2_from:
+        if match.opponent2_from in seen_matches:
+            return True
+        elif _dfs_has_cycle(match.opponent2_from, seen_matches):
+            return True
+
+    seen_matches.remove(match)
+    return False

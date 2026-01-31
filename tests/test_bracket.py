@@ -523,3 +523,18 @@ def test_triple_qual_layers():
 
     for match in entries:
         assert match in entry_layer_1
+
+
+def test_cycle_raises_error():
+    final = Match()
+    m1 = Match()
+    m2 = Match()
+    m3 = Match()
+    m1.connect_to(m2, LinkType.WINNER, 1)
+    m2.connect_to(m3, LinkType.LOSER, 1)
+    m3.connect_to(m2, LinkType.WINNER, 2)
+    m2.connect_to(final, LinkType.WINNER, 1)
+
+    with pytest.raises(BuildingError):
+        bracket = bracket_from_root_match(final)
+
