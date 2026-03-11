@@ -110,6 +110,14 @@ class Match:
         if self._loser_to:
             self._loser_to.recieve_opponent(loser, self)
 
+    def get_winner(self):
+        if self._winning_side == 1:
+            return self._opponent1
+        elif self._winning_side == 2:
+            return self._opponent2
+        else:
+            raise BracketError("The match has no winner.")
+
     def set_as_layer_1_entry(self):
         if self._opponent1_from and self._opponent2_from:
             raise BracketError("Trying to set layer 1 entry on match that is not an entry match.")
