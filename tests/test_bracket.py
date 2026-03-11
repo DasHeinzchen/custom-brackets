@@ -268,6 +268,33 @@ def generate_bracket(bracket: int):
 
         return bracket_from_root_match(lf), [ur11, ur12, ur13, ur14, uq1, uq2, uq3, uq4]
 
+    elif bracket == 6:
+        # Top 8 Single Elimination with 3rd place decider
+        qf1 = Match()
+        print(f"qf1: {qf1}")
+        qf2 = Match()
+        print(f"qf2: {qf2}")
+        qf3 = Match()
+        print(f"qf3: {qf3}")
+        qf4 = Match()
+        print(f"qf4: {qf4}")
+        sf1 = Match()
+        print(f"sf1: {sf1}")
+        sf2 = Match()
+        print(f"sf2: {sf2}")
+        qf1.connect_to(sf1, LinkType.WINNER, 1)
+        qf2.connect_to(sf1, LinkType.WINNER, 2)
+        qf3.connect_to(sf2, LinkType.WINNER, 1)
+        qf4.connect_to(sf2, LinkType.WINNER, 2)
+        gf = Match()
+        decider = Match(decider=True)
+        sf1.connect_to(gf, LinkType.WINNER, 1)
+        sf2.connect_to(gf, LinkType.WINNER, 2)
+        sf1.connect_to(decider, LinkType.LOSER, 1)
+        sf2.connect_to(decider, LinkType.LOSER, 2)
+
+        return bracket_from_root_matches([gf, decider]), [qf1, qf2, qf3, qf4]
+
 
 def test_basic_bracket_building():
     s1 = Match()
@@ -553,3 +580,49 @@ def test_cycle_raises_error():
     with pytest.raises(BuildingError):
         bracket = bracket_from_root_match(final)
 
+
+def test_third_place_bracket_building():
+    bracket, entries = generate_bracket(6)
+    assert len(bracket.match_list) == 8
+    assert len(bracket.entry_matches) == 4
+    assert bracket.max_level == 3
+    for match in entries:
+        assert match in bracket.entry_matches
+    assert len(bracket.roots) == 2
+    assert bracket.team_number == 8
+
+
+def test_third_place_layers():
+    bracket, entries = generate_bracket(6)
+    for match in entries:
+        match.set_as_layer_1_entry()
+
+    bracket.calculate_layers()
+
+    assert bracket.layer_number == 1
+
+    upper = []
+    other = []
+
+    for match in bracket.match_list:
+        if match.layer == 1:
+            upper.append(match)
+        else:
+            other.append(match)
+
+    assert len(upper) == 8
+    assert len(other) == 0
+
+    entry_layer_1 = []
+    other = []
+    for match in bracket.entry_matches:
+        if match.layer == 1:
+            entry_layer_1.append(match)
+        else:
+            other.append(match)
+
+    assert len(entry_layer_1) == 4
+    assert len(other) == 0
+
+    for match in entries:
+        assert match in entry_layer_1

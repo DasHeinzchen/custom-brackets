@@ -92,3 +92,10 @@ def test_source_match_raises_error():
         m1.recieve_opponent("", Match())
         m2.recieve_opponent("", Match())
         m3.recieve_opponent("", Match())
+
+
+def test_decider_connection_raises_error():
+    decider = Match(decider=True)
+    m1 = Match()
+    with pytest.raises(BracketError):
+        decider.connect_to(m1, LinkType.WINNER, 1)

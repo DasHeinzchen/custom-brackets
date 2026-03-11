@@ -9,7 +9,7 @@ class LinkType(Enum):
 
 
 class Match:
-    def __init__(self, qualified_number=0):
+    def __init__(self, qualified_number=0, decider=False):
         self._opponent1 = None
         self._opponent2 = None
         self._winning_side = 0
@@ -18,6 +18,7 @@ class Match:
         self._opponent1_from: Optional['Match'] = None
         self._opponent2_from: Optional['Match'] = None
         self._qualified_number = qualified_number
+        self.is_decider_match = decider
         self._layer = 0
 
     @property
@@ -82,6 +83,8 @@ class Match:
     def connect_to(self, target: 'Match', as_type: LinkType, target_slot: int):
         if target_slot not in (1, 2):
             raise BracketError(f"Invalid target slot: {target_slot}. Must be 1 or 2.")
+        if self.is_decider_match:
+            raise BracketError(f"Cannot connect third place decider match to another match.")
 
         if as_type == LinkType.WINNER:
             self._winner_to = target
@@ -121,6 +124,9 @@ class Match:
             self._layer = preceding_match.layer
         else:
             self._layer = preceding_match.layer + 1
+
+        if self.is_decider_match:
+            self._layer -= 1
 
     def backtrack_layer(self, next_match: 'Match'):
         if not next_match == self._winner_to:
@@ -192,6 +198,12 @@ class Bracket:
             if not match.opponent2_from:
                 team_number += 1
         return team_number
+
+    def has_decider_match(self) -> bool:
+        for match in self.match_list:
+            if match.is_decider_match:
+                return True
+        return False
 
     def calculate_layers(self):
         # based on assumption that winner stays in layer and loser moves exactly 1 layer down
