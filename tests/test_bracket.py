@@ -405,6 +405,23 @@ def test_advanced_layers():
         assert match in entry_layer_1
 
 
+def test_advanced_placements():
+    bracket, entries = generate_bracket(1)
+    for match in entries:
+        match.set_as_layer_1_entry()
+        assert match.layer == 1
+
+    bracket.calculate_layers()
+    placement_ranges = bracket.get_placement_ranges()
+    assert sum(placement_ranges) == bracket.team_number
+    assert placement_ranges == [1, 1, 1, 1, 2, 2, 4]
+
+    placements = bracket.get_placements()
+    assert len(placements) == len(placement_ranges)
+    for i, placement_range in enumerate(placement_ranges):
+        assert len(placements[i]) == placement_range
+
+
 def test_qual_bracket_building():
     bracket, entries = generate_bracket(2)
     assert len(bracket.match_list) == 6
@@ -427,6 +444,23 @@ def test_qual_layers():
 
     for match in bracket.match_list:
         assert match.layer == 1
+
+
+def test_qual_placements():
+    bracket, entries = generate_bracket(2)
+    for match in entries:
+        match.set_as_layer_1_entry()
+        assert match.layer == 1
+
+    bracket.calculate_layers()
+    placement_ranges = bracket.get_placement_ranges()
+    assert sum(placement_ranges) == bracket.team_number
+    assert placement_ranges == [2, 2, 4]
+
+    placements = bracket.get_placements()
+    assert len(placements) == len(placement_ranges)
+    for i, placement_range in enumerate(placement_ranges):
+        assert len(placements[i]) == placement_range
 
 
 def test_group1_bracket_building():
@@ -484,6 +518,23 @@ def test_group1_layers():
         assert match in entry_layer_1
 
 
+def test_group1_placements():
+    bracket, entries = generate_bracket(3)
+    for match in entries:
+        match.set_as_layer_1_entry()
+        assert match.layer == 1
+
+    bracket.calculate_layers()
+    placement_ranges = bracket.get_placement_ranges()
+    assert sum(placement_ranges) == bracket.team_number
+    assert placement_ranges == [2, 2, 2, 2]
+
+    placements = bracket.get_placements()
+    assert len(placements) == len(placement_ranges)
+    for i, placement_range in enumerate(placement_ranges):
+        assert len(placements[i]) == placement_range
+
+
 def test_group2_bracket_building():
     bracket, entries = generate_bracket(4)
     assert len(bracket.match_list) == 12
@@ -537,6 +588,23 @@ def test_group2_layers():
 
     for match in entries:
         assert match in entry_layer_1
+
+
+def test_group2_placements():
+    bracket, entries = generate_bracket(4)
+    for match in entries:
+        match.set_as_layer_1_entry()
+        assert match.layer == 1
+
+    bracket.calculate_layers()
+    placement_ranges = bracket.get_placement_ranges()
+    assert sum(placement_ranges) == bracket.team_number
+    assert placement_ranges == [1, 1, 1, 1, 2, 2]
+
+    placements = bracket.get_placements()
+    assert len(placements) == len(placement_ranges)
+    for i, placement_range in enumerate(placement_ranges):
+        assert len(placements[i]) == placement_range
 
 
 def test_triple_qual_bracket_building():
@@ -602,6 +670,23 @@ def test_triple_qual_layers():
         assert match in entry_layer_1
 
 
+def test_triple_qual_placements():
+    bracket, entries = generate_bracket(5)
+    for match in entries:
+        match.set_as_layer_1_entry()
+        assert match.layer == 1
+
+    bracket.calculate_layers()
+    placement_ranges = bracket.get_placement_ranges()
+    assert sum(placement_ranges) == bracket.team_number
+    assert placement_ranges == [1, 1, 1, 1, 1, 1, 2, 2, 2]
+
+    placements = bracket.get_placements()
+    assert len(placements) == len(placement_ranges)
+    for i, placement_range in enumerate(placement_ranges):
+        assert len(placements[i]) == placement_range
+
+
 def test_third_place_bracket_building():
     bracket, entries = generate_bracket(6)
     assert len(bracket.match_list) == 8
@@ -647,6 +732,23 @@ def test_third_place_layers():
 
     for match in entries:
         assert match in entry_layer_1
+
+
+def test_third_place_placements():
+    bracket, entries = generate_bracket(6)
+    for match in entries:
+        match.set_as_layer_1_entry()
+        assert match.layer == 1
+
+    bracket.calculate_layers()
+    placement_ranges = bracket.get_placement_ranges()
+    assert sum(placement_ranges) == bracket.team_number
+    assert placement_ranges == [1, 1, 1, 1, 4]
+
+    placements = bracket.get_placements()
+    assert len(placements) == len(placement_ranges)
+    for i, placement_range in enumerate(placement_ranges):
+        assert len(placements[i]) == placement_range
 
 
 def test_hybrid_bracket_building():
@@ -702,6 +804,23 @@ def test_hybrid_layers():
 
     for match in entries:
         assert match in entry_layer_1
+
+
+def test_hybrid_placements():
+    bracket, entries = generate_bracket(7)
+    for match in entries:
+        match.set_as_layer_1_entry()
+        assert match.layer == 1
+
+    bracket.calculate_layers()
+    placement_ranges = bracket.get_placement_ranges()
+    assert sum(placement_ranges) == bracket.team_number
+    assert placement_ranges == [1, 1, 2, 2, 2]
+
+    placements = bracket.get_placements()
+    assert len(placements) == len(placement_ranges)
+    for i, placement_range in enumerate(placement_ranges):
+        assert len(placements[i]) == placement_range
 
 
 def test_cycle_raises_error():

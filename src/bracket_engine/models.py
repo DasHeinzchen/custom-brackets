@@ -116,7 +116,15 @@ class Match:
         elif self._winning_side == 2:
             return self._opponent2
         else:
-            raise BracketError("The match has no winner.")
+            return None
+
+    def get_loser(self):
+        if self._winning_side == 1:
+            return self._opponent2
+        elif self._winning_side == 2:
+            return self._opponent1
+        else:
+            return None
 
     def set_as_layer_1_entry(self):
         if self._opponent1_from and self._opponent2_from:
@@ -247,3 +255,65 @@ class Bracket:
                             losing_matches.append(preceding_match)
                             seen_matches.add(preceding_match)
                             queue.append(preceding_match)
+
+    def get_placement_matches(self) -> list[list[Match]]:
+        placement_matches_list = []
+        for match in self.match_list:
+            if not (match.winner_to and match.loser_to):
+                placement_matches_list.append(match)
+
+        matches = self.matches_by_level_and_layer
+        for level in matches:
+            for layer in level:
+                for match in layer.copy():
+                    if match not in placement_matches_list:
+                        layer.remove(match)
+
+        placement_matches = []
+        for layer_i in range(self.layer_number):
+            for level in matches:
+                if level[layer_i]:
+                    placement_matches.append(level[layer_i])
+
+        return placement_matches
+
+    def get_placement_ranges(self) -> list[int]:
+        placement_matches = self.get_placement_matches()
+        placement_ranges = []
+
+        for match_list in placement_matches:
+            local_range = [len(match_list)]
+            if match_list[0] in self._roots:
+                local_range.append(len(match_list))
+            for match in match_list:
+                if match.is_decider_match:
+                    local_range = [1, 1, 1, 1]
+            placement_ranges += local_range
+
+        return placement_ranges
+
+    def get_placements(self) -> list[list]:
+        placement_matches = self.get_placement_matches()
+        placements = []
+
+        for match_list in placement_matches:
+            winners = []
+            losers = []
+            for match in match_list:
+                if match.is_decider_match:
+                    if winners:
+                        placements.append(winners)
+                        winners = []
+                    if losers:
+                        placements.append(losers)
+                        losers = []
+                if not match.winner_to:
+                    winners.append(match.get_winner())
+                if not match.loser_to:
+                    losers.append(match.get_loser())
+            if winners:
+                placements.append(winners)
+            if losers:
+                placements.append(losers)
+
+        return placements
