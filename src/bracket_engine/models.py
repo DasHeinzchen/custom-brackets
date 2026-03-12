@@ -221,6 +221,13 @@ class Bracket:
                 return True
         return False
 
+    def validate_deciders(self):
+        for level in self.matches_by_level_and_layer:
+            for layer in level:
+                for match in layer:
+                    if match.is_decider_match and len(layer) != 2:
+                        raise BracketError("Invalid Decider Match.")
+
     def calculate_layers(self):
         # based on assumption that winner stays in layer and loser moves exactly 1 layer down
         layer_1_entries = []
@@ -255,6 +262,9 @@ class Bracket:
                             losing_matches.append(preceding_match)
                             seen_matches.add(preceding_match)
                             queue.append(preceding_match)
+
+        if self.has_decider_match():
+            self.validate_deciders()
 
     def get_placement_matches(self) -> list[list[Match]]:
         placement_matches_list = []
