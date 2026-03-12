@@ -287,13 +287,48 @@ def generate_bracket(bracket: int):
         qf3.connect_to(sf2, LinkType.WINNER, 1)
         qf4.connect_to(sf2, LinkType.WINNER, 2)
         gf = Match()
+        print(f"gf: {gf}")
         decider = Match(decider=True)
+        print(f"decider: {decider}")
         sf1.connect_to(gf, LinkType.WINNER, 1)
         sf2.connect_to(gf, LinkType.WINNER, 2)
         sf1.connect_to(decider, LinkType.LOSER, 1)
         sf2.connect_to(decider, LinkType.LOSER, 2)
 
         return bracket_from_root_matches([gf, decider]), [qf1, qf2, qf3, qf4]
+
+    elif bracket == 7:
+        # Ref: https://liquipedia.net/rocketleague/Rocket_League_Championship_Series/2026/Boston_Major#Playoffs
+        gf = Match()
+        print(f"gf: {gf}")
+        sf1 = Match()
+        print(f"sf1: {sf1}")
+        sf2 = Match()
+        print(f"sf2: {sf2}")
+        sf1.connect_to(gf, LinkType.WINNER, 1)
+        sf2.connect_to(gf, LinkType.WINNER, 2)
+        lq1 = Match()
+        print(f"lq1: {lq1}")
+        lq2 = Match()
+        print(f"lq2: {lq2}")
+        lq1.connect_to(sf1, LinkType.WINNER, 2)
+        lq2.connect_to(sf2, LinkType.WINNER, 2)
+        uq1 = Match()
+        print(f"uq1: {uq1}")
+        uq2 = Match()
+        print(f"uq2: {uq2}")
+        uq1.connect_to(sf2, LinkType.WINNER, 1)
+        uq2.connect_to(sf1, LinkType.WINNER, 1)
+        uq1.connect_to(lq1, LinkType.LOSER, 1)
+        uq2.connect_to(lq2, LinkType.LOSER, 1)
+        lr1 = Match()
+        print(f"lr1: {lr1}")
+        lr2 = Match()
+        print(f"lr2: {lr2}")
+        lr1.connect_to(lq1, LinkType.WINNER, 2)
+        lr2.connect_to(lq2, LinkType.WINNER, 2)
+
+        return bracket_from_root_match(gf), [uq1, uq2]
 
 
 def test_basic_bracket_building():
@@ -567,20 +602,6 @@ def test_triple_qual_layers():
         assert match in entry_layer_1
 
 
-def test_cycle_raises_error():
-    final = Match()
-    m1 = Match()
-    m2 = Match()
-    m3 = Match()
-    m1.connect_to(m2, LinkType.WINNER, 1)
-    m2.connect_to(m3, LinkType.LOSER, 1)
-    m3.connect_to(m2, LinkType.WINNER, 2)
-    m2.connect_to(final, LinkType.WINNER, 1)
-
-    with pytest.raises(BuildingError):
-        bracket = bracket_from_root_match(final)
-
-
 def test_third_place_bracket_building():
     bracket, entries = generate_bracket(6)
     assert len(bracket.match_list) == 8
@@ -626,3 +647,72 @@ def test_third_place_layers():
 
     for match in entries:
         assert match in entry_layer_1
+
+
+def test_hybrid_bracket_building():
+    bracket, entries = generate_bracket(7)
+    assert len(bracket.match_list) == 9
+    assert len(bracket.entry_matches) == 4
+    assert bracket.max_level == 4
+    for match in entries:
+        assert match in bracket.entry_matches
+    assert len(bracket.roots) == 1
+    assert bracket.team_number == 8
+
+
+def test_hybrid_layers():
+    bracket, entries = generate_bracket(7)
+    for match in entries:
+        match.set_as_layer_1_entry()
+
+    bracket.calculate_layers()
+
+    assert bracket.layer_number == 2
+
+    upper = []
+    lower = []
+    other = []
+
+    for match in bracket.match_list:
+        if match.layer == 1:
+            upper.append(match)
+        elif match.layer == 2:
+            lower.append(match)
+        else:
+            other.append(match)
+
+    assert len(upper) == 5
+    assert len(lower) == 4
+    assert len(other) == 0
+
+    entry_layer_1 = []
+    entry_layer_2 = []
+    other = []
+    for match in bracket.entry_matches:
+        if match.layer == 1:
+            entry_layer_1.append(match)
+        elif match.layer == 2:
+            entry_layer_2.append(match)
+        else:
+            other.append(match)
+
+    assert len(entry_layer_1) == 2
+    assert len(entry_layer_2) == 2
+    assert len(other) == 0
+
+    for match in entries:
+        assert match in entry_layer_1
+
+
+def test_cycle_raises_error():
+    final = Match()
+    m1 = Match()
+    m2 = Match()
+    m3 = Match()
+    m1.connect_to(m2, LinkType.WINNER, 1)
+    m2.connect_to(m3, LinkType.LOSER, 1)
+    m3.connect_to(m2, LinkType.WINNER, 2)
+    m2.connect_to(final, LinkType.WINNER, 1)
+
+    with pytest.raises(BuildingError):
+        bracket = bracket_from_root_match(final)
